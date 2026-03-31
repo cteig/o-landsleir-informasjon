@@ -35,3 +35,43 @@ self.addEventListener("fetch", (event) => {
       .catch(() => caches.match(event.request)),
   );
 });
+
+self.addEventListener("push", (event) => {
+  if (!event.data) return;
+
+  let data;
+  try {
+    data = event.data.json();
+  } catch {
+    data = { message: event.data.text() };
+  }
+
+  const title = data.title || "O-landsleir 2026";
+  const options = {
+    body: data.message || data.body || "",
+    icon: "/icon-192.png",
+    badge: "/icon-192.png",
+    tag: data.id || "ntfy",
+    data: { url: data.click || "/varsler" },
+  };
+
+  event.waitUntil(self.registration.showNotification(title, options));
+});
+
+self.addEventListener("notificationclick", (event) => {
+  event.notification.close();
+
+  const url = event.notification.data?.url || "/varsler";
+
+  event.waitUntil(
+    self.clients.matchAll({ type: "window", includeUncontrolled: true }).then((clients) => {
+      for (const client of clients) {
+        if (client.url.includes(self.location.origin) && "focus" in client) {
+          client.navigate(url);
+          return client.focus();
+        }
+      }
+      return self.clients.openWindow(url);
+    }),
+  );
+});

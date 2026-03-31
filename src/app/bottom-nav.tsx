@@ -2,23 +2,141 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useEffect, useState } from "react";
+import { NTFY_TOPIC_URL, type NtfyMessage } from "@/lib/ntfy";
+
+const SEEN_KEY = "ntfy-seen-ids";
+
+function useUnreadCount() {
+  const [count, setCount] = useState(0);
+
+  useEffect(() => {
+    let eventSource: EventSource | null = null;
+
+    async function checkUnread() {
+      try {
+        const res = await fetch(`${NTFY_TOPIC_URL}/json?poll=1&since=7d`, {
+          cache: "no-store",
+        });
+        if (!res.ok) return;
+
+        const text = await res.text();
+        const lines = text.trim().split("\n").filter(Boolean);
+        const seenRaw = localStorage.getItem(SEEN_KEY);
+        const seen: Set<string> = seenRaw ? new Set(JSON.parse(seenRaw)) : new Set();
+
+        let unread = 0;
+        for (const line of lines) {
+          try {
+            const msg: NtfyMessage = JSON.parse(line);
+            if (msg.event === "message" && !seen.has(msg.id)) {
+              unread++;
+            }
+          } catch {
+            // noop
+          }
+        }
+        setCount(unread);
+      } catch {
+        // noop
+      }
+    }
+
+    checkUnread();
+
+    eventSource = new EventSource(`${NTFY_TOPIC_URL}/sse`);
+    eventSource.onmessage = (e) => {
+      try {
+        const msg: NtfyMessage = JSON.parse(e.data);
+        if (msg.event === "message") {
+          const seenRaw = localStorage.getItem(SEEN_KEY);
+          const seen: Set<string> = seenRaw ? new Set(JSON.parse(seenRaw)) : new Set();
+          if (!seen.has(msg.id)) {
+            setCount((prev) => prev + 1);
+          }
+        }
+      } catch {
+        // noop
+      }
+    };
+
+    return () => {
+      eventSource?.close();
+    };
+  }, []);
+
+  return count;
+}
+
+interface NavItemProps {
+  href: string;
+  active: boolean;
+  label: string;
+  badge?: number;
+  children: React.ReactNode;
+}
+
+function NavItem({ href, active, label, badge, children }: NavItemProps) {
+  return (
+    <Link
+      href={href}
+      className={`relative flex flex-1 flex-col items-center justify-center gap-1 py-2 ${
+        active ? "text-accent font-semibold" : "text-muted"
+      }`}
+    >
+      <span className="relative">
+        {children}
+        {badge != null && badge > 0 && (
+          <span className="absolute -top-1.5 -right-2.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-red-500 px-1 text-[10px] font-bold text-white">
+            {badge > 99 ? "99+" : badge}
+          </span>
+        )}
+      </span>
+      <span className="text-xs">{label}</span>
+    </Link>
+  );
+}
+
+function NavIcon({
+  d,
+  circles,
+}: {
+  d?: string;
+  circles?: { cx: number; cy: number; r: number }[];
+}) {
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width="20"
+      height="20"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      {d && <path d={d} />}
+      {circles?.map((c, i) => (
+        <circle key={i} cx={c.cx} cy={c.cy} r={c.r} />
+      ))}
+    </svg>
+  );
+}
 
 export function BottomNav() {
   const pathname = usePathname();
+  const unreadCount = useUnreadCount();
 
   const isProgramActive = pathname === "/" || pathname?.startsWith("/dag/");
   const isPraktiskInfoActive = pathname === "/praktisk-info";
+  const isVarslerActive = pathname === "/varsler";
   const isKartActive = pathname === "/kart";
   const isKontaktActive = pathname === "/kontakt";
 
   return (
     <nav className="border-border bg-card/95 fixed right-0 bottom-0 left-0 z-50 flex w-full flex-row border-t pb-[env(safe-area-inset-bottom)] backdrop-blur-sm">
-      <Link
-        href="/"
-        className={`flex flex-1 flex-col items-center justify-center gap-1 py-2 ${
-          isProgramActive ? "text-accent font-semibold" : "text-muted"
-        }`}
-      >
+      <NavItem href="/" active={isProgramActive} label="Program">
         <svg
           xmlns="http://www.w3.org/2000/svg"
           width="20"
@@ -41,80 +159,29 @@ export function BottomNav() {
           <path d="M12 18h.01" />
           <path d="M16 18h.01" />
         </svg>
-        <span className="text-xs">Program</span>
-      </Link>
+      </NavItem>
 
-      <Link
-        href="/praktisk-info"
-        className={`flex flex-1 flex-col items-center justify-center gap-1 py-2 ${
-          isPraktiskInfoActive ? "text-accent font-semibold" : "text-muted"
-        }`}
-      >
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          width="20"
-          height="20"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="2"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        >
-          <circle cx="12" cy="12" r="10" />
-          <path d="M12 16v-4" />
-          <path d="M12 8h.01" />
-        </svg>
-        <span className="text-xs">Info</span>
-      </Link>
+      <NavItem href="/praktisk-info" active={isPraktiskInfoActive} label="Info">
+        <NavIcon circles={[{ cx: 12, cy: 12, r: 10 }]} d="M12 16v-4M12 8h.01" />
+      </NavItem>
 
-      <Link
-        href="/kart"
-        className={`flex flex-1 flex-col items-center justify-center gap-1 py-2 ${
-          isKartActive ? "text-accent font-semibold" : "text-muted"
-        }`}
-      >
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          width="20"
-          height="20"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="2"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        >
-          <path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0" />
-          <circle cx="12" cy="10" r="3" />
-        </svg>
-        <span className="text-xs">Kart</span>
-      </Link>
+      <NavItem href="/varsler" active={isVarslerActive} label="Varsler" badge={unreadCount}>
+        <NavIcon d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9M10.3 21a1.94 1.94 0 0 0 3.4 0" />
+      </NavItem>
 
-      <Link
-        href="/kontakt"
-        className={`flex flex-1 flex-col items-center justify-center gap-1 py-2 ${
-          isKontaktActive ? "text-accent font-semibold" : "text-muted"
-        }`}
-      >
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          width="20"
-          height="20"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="2"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        >
-          <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
-          <circle cx="9" cy="7" r="4" />
-          <path d="M22 21v-2a4 4 0 0 0-3-3.87" />
-          <path d="M16 3.13a4 4 0 0 1 0 7.75" />
-        </svg>
-        <span className="text-xs">Kontakt</span>
-      </Link>
+      <NavItem href="/kart" active={isKartActive} label="Kart">
+        <NavIcon
+          d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0"
+          circles={[{ cx: 12, cy: 10, r: 3 }]}
+        />
+      </NavItem>
+
+      <NavItem href="/kontakt" active={isKontaktActive} label="Kontakt">
+        <NavIcon
+          d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2M22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"
+          circles={[{ cx: 9, cy: 7, r: 4 }]}
+        />
+      </NavItem>
     </nav>
   );
 }
