@@ -9,7 +9,7 @@ export function BottomNav() {
   const isProgramActive = pathname === "/" || pathname?.startsWith("/dag/");
   const isPraktiskInfoActive = pathname === "/praktisk-info";
   const isKartActive = pathname === "/kart";
-  const isOmActive = pathname === "/om";
+  const isKontaktActive = pathname === "/kontakt";
 
   return (
     <nav className="border-border bg-card/95 fixed right-0 bottom-0 left-0 z-50 flex w-full flex-row border-t pb-[env(safe-area-inset-bottom)] backdrop-blur-sm">
@@ -92,9 +92,9 @@ export function BottomNav() {
       </Link>
 
       <Link
-        href="/om"
+        href="/kontakt"
         className={`flex flex-1 flex-col items-center justify-center gap-1 py-2 ${
-          isOmActive ? "text-accent font-semibold" : "text-muted"
+          isKontaktActive ? "text-accent font-semibold" : "text-muted"
         }`}
       >
         <svg
@@ -113,7 +113,7 @@ export function BottomNav() {
           <path d="M22 21v-2a4 4 0 0 0-3-3.87" />
           <path d="M16 3.13a4 4 0 0 1 0 7.75" />
         </svg>
-        <span className="text-xs">Om</span>
+        <span className="text-xs">Kontakt</span>
       </Link>
     </nav>
   );

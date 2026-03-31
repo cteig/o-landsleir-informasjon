@@ -1,6 +1,6 @@
 @import "tailwindcss";
 
-@custom-variant dark (&:where(.dark, .dark *));
+@custom-variant dark (&:is(.dark *));
 
 :root {
   --club-burgundy: #610027;
@@ -50,6 +50,15 @@
   --accent-hover: #9c4054;
   --accent-subtle: #86304015;
   --surface-warm: #2a302d;
+}
+
+@layer base {
+  @media (prefers-color-scheme: dark) {
+    :root:not(.light) {
+      --background: #faf9f7;
+      --foreground: #23272b;
+    }
+  }
 }
 
 body {

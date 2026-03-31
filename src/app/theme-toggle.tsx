@@ -1,12 +1,35 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useSyncExternalStore } from "react";
 
 type Theme = "light" | "dark" | "system";
 
-function getStoredTheme(): Theme {
-  if (typeof window === "undefined") return "system";
-  return (localStorage.getItem("theme") as Theme) || "system";
+const STORAGE_KEY = "theme";
+
+let currentTheme: Theme =
+  typeof window !== "undefined"
+    ? (localStorage.getItem(STORAGE_KEY) as Theme) || "system"
+    : "system";
+
+const listeners = new Set<() => void>();
+
+function subscribe(cb: () => void) {
+  listeners.add(cb);
+  return () => listeners.delete(cb);
+}
+
+function getSnapshot(): Theme {
+  return currentTheme;
+}
+
+function getServerSnapshot(): Theme {
+  return "system";
+}
+
+function setStoredTheme(next: Theme) {
+  currentTheme = next;
+  localStorage.setItem(STORAGE_KEY, next);
+  listeners.forEach((cb) => cb());
 }
 
 function applyTheme(theme: Theme) {
@@ -20,14 +43,14 @@ function applyTheme(theme: Theme) {
 }
 
 export function ThemeToggle() {
-  const [theme, setTheme] = useState<Theme>(getStoredTheme);
+  const theme = useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot);
 
   useEffect(() => {
     applyTheme(theme);
 
     const mq = window.matchMedia("(prefers-color-scheme: dark)");
     const handler = () => {
-      if (getStoredTheme() === "system") applyTheme("system");
+      if (currentTheme === "system") applyTheme("system");
     };
     mq.addEventListener("change", handler);
     return () => mq.removeEventListener("change", handler);
@@ -36,8 +59,7 @@ export function ThemeToggle() {
   function cycle() {
     const order: Theme[] = ["light", "dark", "system"];
     const next = order[(order.indexOf(theme) + 1) % order.length];
-    setTheme(next);
-    localStorage.setItem("theme", next);
+    setStoredTheme(next);
     applyTheme(next);
   }
 
