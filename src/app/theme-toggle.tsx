@@ -7,9 +7,7 @@ type Theme = "light" | "dark" | "system";
 const STORAGE_KEY = "theme";
 
 let currentTheme: Theme =
-  typeof window !== "undefined"
-    ? (localStorage.getItem(STORAGE_KEY) as Theme) || "system"
-    : "system";
+  typeof window !== "undefined" ? (localStorage.getItem(STORAGE_KEY) as Theme) || "light" : "light";
 
 const listeners = new Set<() => void>();
 
@@ -23,7 +21,7 @@ function getSnapshot(): Theme {
 }
 
 function getServerSnapshot(): Theme {
-  return "system";
+  return "light";
 }
 
 function setStoredTheme(next: Theme) {
