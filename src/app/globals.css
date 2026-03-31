@@ -1,24 +1,72 @@
 @import "tailwindcss";
 
+@custom-variant dark (&:where(.dark, .dark *));
+
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --club-burgundy: #610027;
+  --club-burgundy-light: #7a1033;
+  --club-burgundy-dark: #4a001d;
+  --club-dark-gray: #496662;
+  --club-dark-gray-light: #5a7d78;
+  --club-light-gray: #e6e6e6;
+  --club-legal-black: #23272b;
+
+  --background: #faf9f7;
+  --background-card: #ffffff;
+  --foreground: #23272b;
+  --foreground-muted: #496662;
+  --border: #e6e6e6;
+  --border-hover: #496662;
+  --accent: #610027;
+  --accent-hover: #7a1033;
+  --accent-subtle: #61002710;
+  --surface-warm: #f5f0ec;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
+  --color-card: var(--background-card);
+  --color-muted: var(--foreground-muted);
+  --color-border: var(--border);
+  --color-border-hover: var(--border-hover);
+  --color-accent: var(--accent);
+  --color-accent-hover: var(--accent-hover);
+  --color-accent-subtle: var(--accent-subtle);
+  --color-surface-warm: var(--surface-warm);
+  --color-club-burgundy: var(--club-burgundy);
+  --color-club-gray: var(--club-dark-gray);
   --font-sans: var(--font-geist-sans);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+.dark {
+  --background: #1a1f21;
+  --background-card: #23292c;
+  --foreground: #edecea;
+  --foreground-muted: #9caba7;
+  --border: #333d3a;
+  --border-hover: #5a7d78;
+  --accent: #863040;
+  --accent-hover: #9c4054;
+  --accent-subtle: #86304015;
+  --surface-warm: #2a302d;
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
+  padding: env(safe-area-inset-top) env(safe-area-inset-right) 0 env(safe-area-inset-left);
+  overflow-x: hidden;
+  width: 100%;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  a,
+  button {
+    transition:
+      color 0.15s ease,
+      background-color 0.15s ease,
+      border-color 0.15s ease,
+      box-shadow 0.15s ease;
+  }
 }

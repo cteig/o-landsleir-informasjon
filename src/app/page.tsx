@@ -1,47 +1,79 @@
+import Image from "next/image";
 import Link from "next/link";
 import { fetchProgram } from "@/lib/program";
 import { ProgramDay } from "@/types/activity";
 
-function DayCard({ day }: { day: ProgramDay }) {
+function DayCard({ day, index }: { day: ProgramDay; index: number }) {
   return (
     <Link
       href={`/dag/${day.id}`}
-      className="block rounded-xl border border-zinc-200 bg-white p-5 shadow-sm transition-colors hover:border-amber-300 hover:bg-amber-50/50 dark:border-zinc-800 dark:bg-zinc-900 dark:hover:border-amber-700 dark:hover:bg-amber-950/20"
+      className="group border-border bg-card hover:border-border-hover flex items-stretch gap-0 overflow-hidden rounded-2xl border shadow-sm transition-all hover:shadow-md active:scale-[0.98]"
     >
-      <div className="flex items-baseline justify-between gap-3">
-        <div className="flex items-baseline gap-3">
-          <h2 className="text-lg font-semibold text-zinc-900 dark:text-zinc-100">{day.label}</h2>
-          <span className="text-sm text-zinc-500 dark:text-zinc-400">{day.date}</span>
+      <div className="bg-accent flex w-16 shrink-0 flex-col items-center justify-center rounded-l-2xl text-white sm:w-20">
+        <span className="text-xs font-medium tracking-wide uppercase opacity-80">Dag</span>
+        <span className="text-2xl leading-none font-bold sm:text-3xl">{index + 1}</span>
+      </div>
+      <div className="flex min-h-[72px] min-w-0 flex-1 items-center justify-between gap-3 px-4 py-4 sm:px-5">
+        <div className="min-w-0">
+          <div className="flex items-baseline gap-2">
+            <h2 className="text-foreground text-base font-semibold sm:text-lg">{day.label}</h2>
+            <span className="text-muted text-sm">{day.date}</span>
+          </div>
+          <p className="text-muted mt-1 truncate text-sm">
+            {day.activities.map((a) => a.title).join(" \u00b7 ")}
+          </p>
         </div>
-        <span className="text-sm text-zinc-400 dark:text-zinc-500" aria-hidden="true">
+        <span
+          className="text-muted shrink-0 transition-transform group-hover:translate-x-0.5"
+          aria-hidden="true"
+        >
           &rarr;
         </span>
       </div>
-      <p className="mt-2 text-sm text-zinc-600 dark:text-zinc-400">
-        {day.activities.map((a) => a.title).join(", ")}
-      </p>
     </Link>
   );
 }
 
+function UpdatedAt({ timestamp }: { timestamp: string }) {
+  const date = new Date(timestamp);
+  const formatted = date.toLocaleString("nb-NO", {
+    day: "numeric",
+    month: "short",
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+  return <p className="text-muted mt-6 text-center text-xs">Sist oppdatert: {formatted}</p>;
+}
+
 export default async function Home() {
-  const program = await fetchProgram();
+  const { days, updatedAt } = await fetchProgram();
 
   return (
-    <div className="flex flex-1 flex-col items-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="w-full max-w-2xl px-6 py-16 sm:py-24">
-        <header className="mb-12 text-center">
-          <h1 className="text-4xl font-bold tracking-tight text-zinc-900 dark:text-zinc-50">
-            O-landsleiren 2026
-          </h1>
-          <p className="mt-3 text-lg text-zinc-600 dark:text-zinc-400">Program for leiren</p>
+    <div className="bg-background flex flex-1 flex-col items-center font-sans">
+      <main className="w-full max-w-2xl px-5 py-12 sm:px-6 sm:py-20">
+        <header className="mb-10 text-center">
+          <Image
+            src="/LogoHLOLL2026.jpg"
+            alt="O-landsleir med Hovedløp 2026"
+            width={600}
+            height={300}
+            className="mx-auto mb-4 h-auto w-full max-w-md rounded-xl dark:brightness-90 dark:contrast-105"
+            priority
+          />
+          <div className="bg-accent-subtle text-accent mb-3 inline-flex items-center gap-2 rounded-full px-4 py-1.5 text-sm font-medium">
+            <span aria-hidden="true">🧭</span>
+            30. juli – 5. august
+          </div>
+          <p className="text-muted mt-2 text-base sm:text-lg">Program for leiren</p>
         </header>
 
-        <div className="flex flex-col gap-4">
-          {program.map((day) => (
-            <DayCard key={day.id} day={day} />
+        <div className="flex flex-col gap-3 sm:gap-4">
+          {days.map((day, i) => (
+            <DayCard key={day.id} day={day} index={i} />
           ))}
         </div>
+
+        <UpdatedAt timestamp={updatedAt} />
       </main>
     </div>
   );
