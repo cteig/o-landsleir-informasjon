@@ -6,12 +6,12 @@ COPY package.json package-lock.json ./
 RUN npm ci --ignore-scripts
 
 FROM base AS builder
+RUN apk add --no-cache git
 WORKDIR /app
-ARG NEXT_PUBLIC_GIT_SHA=unknown
-ENV NEXT_PUBLIC_GIT_SHA=$NEXT_PUBLIC_GIT_SHA
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
-RUN npm run build
+ENV NEXT_PUBLIC_GIT_SHA=${NEXT_PUBLIC_GIT_SHA:-}
+RUN export NEXT_PUBLIC_GIT_SHA="${NEXT_PUBLIC_GIT_SHA:-$(git rev-parse --short HEAD 2>/dev/null || echo unknown)}" && npm run build
 
 FROM base AS runner
 WORKDIR /app
