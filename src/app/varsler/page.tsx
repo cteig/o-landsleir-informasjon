@@ -9,38 +9,44 @@ import {
   priorityLabel,
   tagsToEmoji,
 } from "@/lib/ntfy";
+import { isWebPushSupported, subscribeWebPush, getExistingSubscription } from "@/lib/webpush";
 
 const SEEN_KEY = "ntfy-seen-ids";
 
-type NotifPerm = "default" | "granted" | "denied" | "unsupported";
+type PushState = "loading" | "unsupported" | "default" | "subscribed" | "denied";
 
-let currentPermission: NotifPerm =
-  typeof window !== "undefined" && "Notification" in window
-    ? (Notification.permission as NotifPerm)
-    : "unsupported";
+let currentState: PushState = "loading";
+const stateListeners = new Set<() => void>();
 
-const permListeners = new Set<() => void>();
-
-function subscribePerm(cb: () => void) {
-  permListeners.add(cb);
-  return () => permListeners.delete(cb);
+function subscribeState(cb: () => void) {
+  stateListeners.add(cb);
+  return () => stateListeners.delete(cb);
 }
 
-function getPermSnapshot(): NotifPerm {
-  return currentPermission;
+function getStateSnapshot(): PushState {
+  return currentState;
 }
 
-function getPermServerSnapshot(): NotifPerm {
+function getStateServerSnapshot(): PushState {
   return "unsupported";
 }
 
-function updatePermission(perm: NotifPerm) {
-  currentPermission = perm;
-  permListeners.forEach((cb) => cb());
+function updateState(state: PushState) {
+  currentState = state;
+  stateListeners.forEach((cb) => cb());
+}
+
+async function detectPushState(): Promise<PushState> {
+  if (!isWebPushSupported()) return "unsupported";
+
+  if ("Notification" in window && Notification.permission === "denied") return "denied";
+
+  const existing = await getExistingSubscription();
+  return existing ? "subscribed" : "default";
 }
 
 function showBrowserNotification(msg: NtfyMessage) {
-  if (currentPermission !== "granted") return;
+  if (typeof Notification === "undefined" || Notification.permission !== "granted") return;
   if (document.visibilityState === "visible") return;
 
   const title = msg.title || "O-landsleir 2026";
@@ -52,20 +58,25 @@ function showBrowserNotification(msg: NtfyMessage) {
 }
 
 function NotificationToggle() {
-  const permission = useSyncExternalStore(subscribePerm, getPermSnapshot, getPermServerSnapshot);
+  const pushState = useSyncExternalStore(subscribeState, getStateSnapshot, getStateServerSnapshot);
+  const [subscribing, setSubscribing] = useState(false);
 
-  if (permission === "unsupported") return null;
+  useEffect(() => {
+    detectPushState().then(updateState);
+  }, []);
 
-  if (permission === "granted") {
+  if (pushState === "loading" || pushState === "unsupported") return null;
+
+  if (pushState === "subscribed") {
     return (
       <div className="border-border bg-card mb-6 flex items-center gap-3 rounded-2xl border p-4 shadow-sm">
         <span className="text-base">🔔</span>
-        <span className="text-foreground text-sm">Varsler er aktivert</span>
+        <span className="text-foreground text-sm">Push-varsler er aktivert</span>
       </div>
     );
   }
 
-  if (permission === "denied") {
+  if (pushState === "denied") {
     return (
       <div className="border-border bg-card mb-6 flex items-center gap-3 rounded-2xl border p-4 shadow-sm">
         <span className="text-base">🔕</span>
@@ -78,13 +89,26 @@ function NotificationToggle() {
 
   return (
     <button
+      disabled={subscribing}
       onClick={async () => {
-        const result = await Notification.requestPermission();
-        updatePermission(result as NotifPerm);
+        setSubscribing(true);
+        try {
+          const result = await Notification.requestPermission();
+          if (result === "denied") {
+            updateState("denied");
+            return;
+          }
+          await subscribeWebPush();
+          updateState("subscribed");
+        } catch {
+          updateState(await detectPushState());
+        } finally {
+          setSubscribing(false);
+        }
       }}
-      className="bg-accent hover:bg-accent-hover mb-6 flex w-full items-center justify-center gap-2 rounded-2xl px-5 py-3.5 text-sm font-medium text-white shadow-sm transition-colors active:scale-[0.98]"
+      className="bg-accent hover:bg-accent-hover mb-6 flex w-full items-center justify-center gap-2 rounded-2xl px-5 py-3.5 text-sm font-medium text-white shadow-sm transition-colors active:scale-[0.98] disabled:opacity-60"
     >
-      🔔 Slå på varsler
+      {subscribing ? "Aktiverer..." : "🔔 Slå på push-varsler"}
     </button>
   );
 }

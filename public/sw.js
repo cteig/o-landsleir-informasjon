@@ -46,13 +46,18 @@ self.addEventListener("push", (event) => {
     data = { message: event.data.text() };
   }
 
-  const title = data.title || "O-landsleir 2026";
+  const message = data.message || data;
+  const title = message.title || data.title || "O-landsleir 2026";
+  const body = message.message || message.body || data.body || "";
+  const id = message.id || data.id || "ntfy";
+  const clickUrl = message.click || data.click || "/varsler";
+
   const options = {
-    body: data.message || data.body || "",
+    body: body,
     icon: "/icon-192.png",
     badge: "/icon-192.png",
-    tag: data.id || "ntfy",
-    data: { url: data.click || "/varsler" },
+    tag: id,
+    data: { url: clickUrl },
   };
 
   event.waitUntil(self.registration.showNotification(title, options));
