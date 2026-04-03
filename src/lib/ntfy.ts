@@ -1,4 +1,4 @@
-export const NTFY_SERVER = "https://ntfy.sh";
+export const NTFY_SERVER = "https://ntfy.utdanningsplattformen.online";
 export const NTFY_TOPIC = "o-landsleir-2026";
 
 export const NTFY_TOPIC_URL = `${NTFY_SERVER}/${NTFY_TOPIC}`;
