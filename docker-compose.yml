@@ -1,6 +1,9 @@
 services:
   app:
-    build: .
+    build:
+      context: .
+      args:
+        NEXT_PUBLIC_GIT_SHA: ${GIT_SHA:-unknown}
     ports:
       - "3000:3000"
     environment:
