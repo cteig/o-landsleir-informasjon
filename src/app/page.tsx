@@ -74,6 +74,9 @@ export default async function Home() {
         </div>
 
         <UpdatedAt timestamp={updatedAt} />
+        <p className="text-muted/50 mt-2 text-center font-mono text-[10px]">
+          {process.env.NEXT_PUBLIC_GIT_SHA?.slice(0, 7) ?? "dev"}
+        </p>
       </main>
     </div>
   );

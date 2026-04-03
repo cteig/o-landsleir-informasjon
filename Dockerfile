@@ -7,6 +7,8 @@ RUN npm ci --ignore-scripts
 
 FROM base AS builder
 WORKDIR /app
+ARG NEXT_PUBLIC_GIT_SHA=unknown
+ENV NEXT_PUBLIC_GIT_SHA=$NEXT_PUBLIC_GIT_SHA
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 RUN npm run build
