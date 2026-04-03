@@ -149,7 +149,7 @@ export default function VarslerPage() {
 
   const loadMessages = useCallback(async () => {
     try {
-      const msgs = await fetchMessages("7d");
+      const msgs = await fetchMessages("24h");
       setMessages(msgs);
       setError(null);
       markAllSeen(msgs);

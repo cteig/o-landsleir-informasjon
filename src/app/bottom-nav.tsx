@@ -15,7 +15,7 @@ function useUnreadCount() {
 
     async function checkUnread() {
       try {
-        const res = await fetch(`${NTFY_TOPIC_URL}/json?poll=1&since=7d`, {
+        const res = await fetch(`${NTFY_TOPIC_URL}/json?poll=1&since=24h`, {
           cache: "no-store",
         });
         if (!res.ok) return;

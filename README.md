@@ -22,17 +22,28 @@ You can start editing the page by modifying `app/page.tsx`. The page auto-update
 
 This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
 
-## Learn More
+## Deploy
 
-To learn more about Next.js, take a look at the following resources:
+Appen kjorer pa [Coolify](https://coolify.io) hostet pa [Hetzner](https://www.hetzner.com/).
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Varsler (ntfy)
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+Appen bruker [ntfy](https://ntfy.sh) for push-varsler. Serveren kjorer pa `https://ntfy.utdanningsplattformen.online` med topic `o-landsleir-2026`.
 
-## Deploy on Vercel
+Send en testmelding med curl:
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+```bash
+curl -H 'Title: Middag kl 18' -H 'Priority: default' -H 'Tags: fork_and_knife' -d 'Husk at middagen starter kl 18 i kantina' 'https://ntfy.utdanningsplattformen.online/o-landsleir-2026'
+```
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Tilgjengelige parametere:
+
+- **Title**: Overskrift pa meldingen
+- **Priority**: `min`, `low`, `default`, `high`, `max`
+- **Tags**: Emoji-tags, f.eks. `warning`, `tada`, `loudspeaker`, `bell`, `calendar`, `runner`, `trophy`, `fork_and_knife`, `sun`, `rain_cloud`
+
+Eksempel med hoy prioritet:
+
+```bash
+curl -H 'Title: Endring i programmet' -H 'Priority: high' -H 'Tags: warning,loudspeaker' -d 'Kveldsaktivieten er flyttet til kl 20' 'https://ntfy.utdanningsplattformen.online/o-landsleir-2026'
+```
