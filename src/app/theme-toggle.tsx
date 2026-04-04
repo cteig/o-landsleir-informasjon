@@ -2,7 +2,7 @@
 
 import { useEffect, useSyncExternalStore } from "react";
 
-type Theme = "light" | "dark" | "system";
+export type Theme = "light" | "dark" | "system";
 
 const STORAGE_KEY = "theme";
 
@@ -40,7 +40,7 @@ function applyTheme(theme: Theme) {
   }
 }
 
-export function ThemeToggle() {
+export function useTheme() {
   const theme = useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot);
 
   useEffect(() => {
@@ -61,15 +61,5 @@ export function ThemeToggle() {
     applyTheme(next);
   }
 
-  const label = { light: "☀️", dark: "🌙", system: "💻" }[theme];
-
-  return (
-    <button
-      onClick={cycle}
-      aria-label={`Tema: ${theme}. Trykk for å bytte.`}
-      className="bg-card border-border hover:border-border-hover inline-flex min-h-[44px] min-w-[44px] items-center justify-center rounded-full border text-lg shadow-sm transition-all hover:shadow-md active:scale-95"
-    >
-      {label}
-    </button>
-  );
+  return { theme, cycle };
 }

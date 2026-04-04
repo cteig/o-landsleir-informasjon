@@ -1,6 +1,5 @@
 import type { Metadata, Viewport } from "next";
 import { Geist } from "next/font/google";
-import { ThemeToggle } from "./theme-toggle";
 import { BottomNav } from "./bottom-nav";
 import "./globals.css";
 
@@ -40,9 +39,6 @@ export default function RootLayout({
         />
       </head>
       <body className="flex min-h-full w-full flex-col overflow-x-hidden pb-16">
-        <div className="fixed top-[max(1rem,env(safe-area-inset-top))] right-[max(1rem,env(safe-area-inset-right))] z-50">
-          <ThemeToggle />
-        </div>
         {children}
         <BottomNav />
         <script

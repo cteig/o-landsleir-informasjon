@@ -2,7 +2,9 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useState, useRef, useEffect } from "react";
 import { useUnreadVarsler } from "@/lib/use-unread-varsler";
+import { useTheme } from "./theme-toggle";
 
 interface NavItemProps {
   href: string;
@@ -52,6 +54,69 @@ function NavIcon({
   );
 }
 
+function MoreMenu() {
+  const [open, setOpen] = useState(false);
+  const ref = useRef<HTMLDivElement>(null);
+  const { theme, cycle } = useTheme();
+
+  const themeLabel = { light: "☀️ Lyst", dark: "🌙 Mørkt", system: "💻 System" }[theme];
+
+  useEffect(() => {
+    function handleClickOutside(e: MouseEvent) {
+      if (ref.current && !ref.current.contains(e.target as Node)) {
+        setOpen(false);
+      }
+    }
+    if (open) document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, [open]);
+
+  return (
+    <div ref={ref} className="relative flex flex-1 flex-col items-center justify-center">
+      <button
+        onClick={() => setOpen((prev) => !prev)}
+        className={`relative flex flex-col items-center justify-center gap-1 py-2 ${
+          open ? "text-accent font-semibold" : "text-muted"
+        }`}
+        aria-label="Meny"
+      >
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="20"
+          height="20"
+          viewBox="0 0 24 24"
+          fill="currentColor"
+        >
+          <circle cx="12" cy="5" r="2" />
+          <circle cx="12" cy="12" r="2" />
+          <circle cx="12" cy="19" r="2" />
+        </svg>
+        <span className="text-xs">Mer</span>
+      </button>
+
+      {open && (
+        <div className="border-border bg-card absolute right-0 bottom-full mb-2 w-48 rounded-xl border shadow-lg">
+          <button
+            onClick={cycle}
+            className="text-foreground hover:bg-background flex w-full items-center gap-3 rounded-t-xl px-4 py-3 text-left text-sm"
+          >
+            <span className="text-base">{themeLabel.split(" ")[0]}</span>
+            <span>Tema: {themeLabel.split(" ")[1]}</span>
+          </button>
+          <Link
+            href="/kart"
+            onClick={() => setOpen(false)}
+            className="text-foreground hover:bg-background flex items-center gap-3 rounded-b-xl px-4 py-3 text-sm"
+          >
+            <span className="text-base">🗺️</span>
+            <span>Kart</span>
+          </Link>
+        </div>
+      )}
+    </div>
+  );
+}
+
 export function BottomNav() {
   const pathname = usePathname();
   const hasUnread = useUnreadVarsler();
@@ -59,7 +124,6 @@ export function BottomNav() {
   const isProgramActive = pathname === "/" || pathname?.startsWith("/dag/");
   const isPraktiskInfoActive = pathname === "/praktisk-info";
   const isVarslerActive = pathname === "/varsler";
-  const isKartActive = pathname === "/kart";
   const isKontaktActive = pathname === "/kontakt";
 
   return (
@@ -100,19 +164,14 @@ export function BottomNav() {
         )}
       </NavItem>
 
-      <NavItem href="/kart" active={isKartActive} label="Kart">
-        <NavIcon
-          d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0"
-          circles={[{ cx: 12, cy: 10, r: 3 }]}
-        />
-      </NavItem>
-
       <NavItem href="/kontakt" active={isKontaktActive} label="Kontakt">
         <NavIcon
           d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2M22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"
           circles={[{ cx: 9, cy: 7, r: 4 }]}
         />
       </NavItem>
+
+      <MoreMenu />
     </nav>
   );
 }
