@@ -10,8 +10,7 @@ import {
   tagsToEmoji,
 } from "@/lib/ntfy";
 import { isWebPushSupported, subscribeWebPush, getExistingSubscription } from "@/lib/webpush";
-
-const SEEN_KEY = "ntfy-seen-ids";
+import { markSeen } from "@/lib/notification-store";
 
 type PushState = "loading" | "unsupported" | "default" | "subscribed" | "denied";
 
@@ -114,8 +113,7 @@ function NotificationToggle() {
 }
 
 function markAllSeen(messages: NtfyMessage[]) {
-  const ids = messages.map((m) => m.id);
-  localStorage.setItem(SEEN_KEY, JSON.stringify(ids));
+  markSeen(messages.map((m) => m.id));
 }
 
 function PriorityBadge({ priority }: { priority?: number }) {

@@ -4,16 +4,22 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import { NTFY_TOPIC_URL, type NtfyMessage } from "@/lib/ntfy";
-
-const SEEN_KEY = "ntfy-seen-ids";
+import { subscribeStore, getSeenIds } from "@/lib/notification-store";
 
 function useUnreadCount() {
-  const [count, setCount] = useState(0);
+  const [allMessages, setAllMessages] = useState<NtfyMessage[]>([]);
+  const [seenSize, setSeenSize] = useState(() => getSeenIds().size);
+
+  useEffect(() => {
+    return subscribeStore(() => {
+      setSeenSize(getSeenIds().size);
+    });
+  }, []);
 
   useEffect(() => {
     let eventSource: EventSource | null = null;
 
-    async function checkUnread() {
+    async function fetchAll() {
       try {
         const res = await fetch(`${NTFY_TOPIC_URL}/json?poll=1&since=24h`, {
           cache: "no-store",
@@ -22,38 +28,32 @@ function useUnreadCount() {
 
         const text = await res.text();
         const lines = text.trim().split("\n").filter(Boolean);
-        const seenRaw = localStorage.getItem(SEEN_KEY);
-        const seen: Set<string> = seenRaw ? new Set(JSON.parse(seenRaw)) : new Set();
-
-        let unread = 0;
+        const msgs: NtfyMessage[] = [];
         for (const line of lines) {
           try {
             const msg: NtfyMessage = JSON.parse(line);
-            if (msg.event === "message" && !seen.has(msg.id)) {
-              unread++;
-            }
+            if (msg.event === "message") msgs.push(msg);
           } catch {
             // noop
           }
         }
-        setCount(unread);
+        setAllMessages(msgs);
       } catch {
         // noop
       }
     }
 
-    checkUnread();
+    fetchAll();
 
     eventSource = new EventSource(`${NTFY_TOPIC_URL}/sse`);
     eventSource.onmessage = (e) => {
       try {
         const msg: NtfyMessage = JSON.parse(e.data);
         if (msg.event === "message") {
-          const seenRaw = localStorage.getItem(SEEN_KEY);
-          const seen: Set<string> = seenRaw ? new Set(JSON.parse(seenRaw)) : new Set();
-          if (!seen.has(msg.id)) {
-            setCount((prev) => prev + 1);
-          }
+          setAllMessages((prev) => {
+            if (prev.some((m) => m.id === msg.id)) return prev;
+            return [msg, ...prev];
+          });
         }
       } catch {
         // noop
@@ -65,7 +65,9 @@ function useUnreadCount() {
     };
   }, []);
 
-  return count;
+  const seen = getSeenIds();
+  void seenSize;
+  return allMessages.filter((m) => !seen.has(m.id)).length;
 }
 
 interface NavItemProps {
