@@ -2,83 +2,15 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useEffect, useState } from "react";
-import { NTFY_TOPIC_URL, type NtfyMessage } from "@/lib/ntfy";
-import { subscribeStore, getSeenIds } from "@/lib/notification-store";
-
-function useUnreadCount() {
-  const [allMessages, setAllMessages] = useState<NtfyMessage[]>([]);
-  const [seenSize, setSeenSize] = useState(() => getSeenIds().size);
-
-  useEffect(() => {
-    return subscribeStore(() => {
-      setSeenSize(getSeenIds().size);
-    });
-  }, []);
-
-  useEffect(() => {
-    let eventSource: EventSource | null = null;
-
-    async function fetchAll() {
-      try {
-        const res = await fetch(`${NTFY_TOPIC_URL}/json?poll=1&since=24h`, {
-          cache: "no-store",
-        });
-        if (!res.ok) return;
-
-        const text = await res.text();
-        const lines = text.trim().split("\n").filter(Boolean);
-        const msgs: NtfyMessage[] = [];
-        for (const line of lines) {
-          try {
-            const msg: NtfyMessage = JSON.parse(line);
-            if (msg.event === "message") msgs.push(msg);
-          } catch {
-            // noop
-          }
-        }
-        setAllMessages(msgs);
-      } catch {
-        // noop
-      }
-    }
-
-    fetchAll();
-
-    eventSource = new EventSource(`${NTFY_TOPIC_URL}/sse`);
-    eventSource.onmessage = (e) => {
-      try {
-        const msg: NtfyMessage = JSON.parse(e.data);
-        if (msg.event === "message") {
-          setAllMessages((prev) => {
-            if (prev.some((m) => m.id === msg.id)) return prev;
-            return [msg, ...prev];
-          });
-        }
-      } catch {
-        // noop
-      }
-    };
-
-    return () => {
-      eventSource?.close();
-    };
-  }, []);
-
-  const seen = getSeenIds();
-  void seenSize;
-  return allMessages.filter((m) => !seen.has(m.id)).length;
-}
 
 interface NavItemProps {
   href: string;
   active: boolean;
   label: string;
-  badge?: number;
   children: React.ReactNode;
 }
 
-function NavItem({ href, active, label, badge, children }: NavItemProps) {
+function NavItem({ href, active, label, children }: NavItemProps) {
   return (
     <Link
       href={href}
@@ -86,14 +18,7 @@ function NavItem({ href, active, label, badge, children }: NavItemProps) {
         active ? "text-accent font-semibold" : "text-muted"
       }`}
     >
-      <span className="relative">
-        {children}
-        {badge != null && badge > 0 && (
-          <span className="absolute -top-1.5 -right-2.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-red-500 px-1 text-[10px] font-bold text-white">
-            {badge > 99 ? "99+" : badge}
-          </span>
-        )}
-      </span>
+      <span className="relative">{children}</span>
       <span className="text-xs">{label}</span>
     </Link>
   );
@@ -128,11 +53,9 @@ function NavIcon({
 
 export function BottomNav() {
   const pathname = usePathname();
-  const unreadCount = useUnreadCount();
 
   const isProgramActive = pathname === "/" || pathname?.startsWith("/dag/");
   const isPraktiskInfoActive = pathname === "/praktisk-info";
-  const isVarslerActive = pathname === "/varsler";
   const isKartActive = pathname === "/kart";
   const isKontaktActive = pathname === "/kontakt";
 
@@ -165,10 +88,6 @@ export function BottomNav() {
 
       <NavItem href="/praktisk-info" active={isPraktiskInfoActive} label="Info">
         <NavIcon circles={[{ cx: 12, cy: 12, r: 10 }]} d="M12 16v-4M12 8h.01" />
-      </NavItem>
-
-      <NavItem href="/varsler" active={isVarslerActive} label="Varsler" badge={unreadCount}>
-        <NavIcon d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9M10.3 21a1.94 1.94 0 0 0 3.4 0" />
       </NavItem>
 
       <NavItem href="/kart" active={isKartActive} label="Kart">

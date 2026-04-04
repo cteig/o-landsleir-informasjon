@@ -25,25 +25,3 @@ This project uses [`next/font`](https://nextjs.org/docs/app/building-your-applic
 ## Deploy
 
 Appen kjorer pa [Coolify](https://coolify.io) hostet pa [Hetzner](https://www.hetzner.com/).
-
-## Varsler (ntfy)
-
-Appen bruker [ntfy](https://ntfy.sh) for push-varsler. Serveren kjorer pa `https://ntfy.utdanningsplattformen.online` med topic `o-landsleir-2026`.
-
-Send en testmelding med curl:
-
-```bash
-curl -H 'Title: Middag kl 18' -H 'Priority: default' -H 'Tags: fork_and_knife' -d 'Husk at middagen starter kl 18 i kantina' 'https://ntfy.utdanningsplattformen.online/o-landsleir-2026'
-```
-
-Tilgjengelige parametere:
-
-- **Title**: Overskrift pa meldingen
-- **Priority**: `min`, `low`, `default`, `high`, `max`
-- **Tags**: Emoji-tags, f.eks. `warning`, `tada`, `loudspeaker`, `bell`, `calendar`, `runner`, `trophy`, `fork_and_knife`, `sun`, `rain_cloud`
-
-Eksempel med hoy prioritet:
-
-```bash
-curl -H 'Title: Endring i programmet' -H 'Priority: high' -H 'Tags: warning,loudspeaker' -d 'Kveldsaktivieten er flyttet til kl 20' 'https://ntfy.utdanningsplattformen.online/o-landsleir-2026'
-```

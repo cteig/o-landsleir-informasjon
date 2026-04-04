@@ -6,28 +6,3 @@ services:
         NEXT_PUBLIC_GIT_SHA: ${SOURCE_COMMIT:-unknown}
     ports:
       - "3000:3000"
-    environment:
-      - NEXT_PUBLIC_NTFY_BASE_URL=https://ntfy.utdanningsplattformen.online
-      - NEXT_PUBLIC_NTFY_TOPIC=o-landsleir-2026
-      - NEXT_PUBLIC_NTFY_WEB_PUSH_PUBLIC_KEY=${NTFY_WEB_PUSH_PUBLIC_KEY}
-    depends_on:
-      - ntfy
-
-  ntfy:
-    image: binwiederhier/ntfy:latest
-    command: serve
-    ports:
-      - "9090:80"
-    environment:
-      NTFY_BASE_URL: https://ntfy.utdanningsplattformen.online
-      NTFY_CACHE_FILE: /var/lib/ntfy/cache.db
-      NTFY_CACHE_DURATION: "1h"
-      NTFY_WEB_PUSH_PUBLIC_KEY: ${NTFY_WEB_PUSH_PUBLIC_KEY}
-      NTFY_WEB_PUSH_PRIVATE_KEY: ${NTFY_WEB_PUSH_PRIVATE_KEY}
-      NTFY_WEB_PUSH_FILE: /var/lib/ntfy/webpush.db
-      NTFY_WEB_PUSH_EMAIL_ADDRESS: o-landsleir@utdanningsplattformen.online
-    volumes:
-      - ntfy-data:/var/lib/ntfy
-
-volumes:
-  ntfy-data:
