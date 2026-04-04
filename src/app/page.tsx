@@ -64,7 +64,7 @@ export default async function Home() {
             <span aria-hidden="true">🧭</span>
             30. juli – 5. august
           </div>
-          <p className="text-muted mt-2 text-base sm:text-lg">Program for leiren 20206</p>
+          <p className="text-muted mt-2 text-base sm:text-lg">Program for leiren 2026</p>
         </header>
 
         <div className="flex flex-col gap-3 sm:gap-4">
