@@ -22,6 +22,12 @@ self.addEventListener("activate", (event) => {
 
 self.addEventListener("fetch", (event) => {
   const url = new URL(event.request.url);
+
+  // Skip non-GET requests and Next.js dev/internal requests
+  if (event.request.method !== "GET") return;
+  if (url.pathname.startsWith("/_next/")) return;
+  if (url.hostname === "localhost" || url.hostname === "127.0.0.1") return;
+
   const isSheets = url.hostname === SHEETS_ORIGIN;
   const cacheName = isSheets ? SHEETS_CACHE : CACHE_NAME;
 
