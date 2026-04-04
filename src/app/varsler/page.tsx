@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState, useCallback } from "react";
+import { markVarslerSeen } from "@/lib/use-unread-varsler";
 
 type PushState = "loading" | "unsupported" | "not-installed" | "default" | "subscribed" | "denied";
 
@@ -62,6 +63,7 @@ export default function VarslerPage() {
       if (res.ok) {
         const data = await res.json();
         setMessages(data);
+        markVarslerSeen();
       }
     } catch {
     } finally {
