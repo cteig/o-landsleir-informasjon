@@ -57,9 +57,9 @@ function NavIcon({
 function MoreMenu() {
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
-  const { theme, cycle } = useTheme();
+  const { theme, toggle } = useTheme();
 
-  const themeLabel = { light: "☀️ Lyst", dark: "🌙 Mørkt", system: "💻 System" }[theme];
+  const themeLabel = { light: "☀️ Lyst", dark: "🌙 Mørkt" }[theme];
 
   useEffect(() => {
     function handleClickOutside(e: MouseEvent) {
@@ -97,7 +97,7 @@ function MoreMenu() {
       {open && (
         <div className="border-border bg-card absolute right-0 bottom-full mb-2 w-48 rounded-xl border shadow-lg">
           <button
-            onClick={cycle}
+            onClick={toggle}
             className="text-foreground hover:bg-background flex w-full items-center gap-3 rounded-t-xl px-4 py-3 text-left text-sm"
           >
             <span className="text-base">{themeLabel.split(" ")[0]}</span>
