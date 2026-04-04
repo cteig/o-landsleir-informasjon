@@ -93,6 +93,12 @@ export default function VarslerPage() {
 
     detect();
     loadMessages();
+
+    function refetchOnVisible() {
+      if (document.visibilityState === "visible") loadMessages();
+    }
+    document.addEventListener("visibilitychange", refetchOnVisible);
+    return () => document.removeEventListener("visibilitychange", refetchOnVisible);
   }, [loadMessages]);
 
   async function subscribe() {
