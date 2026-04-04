@@ -9,7 +9,7 @@ export default function KontaktPage() {
 
         <div className="flex flex-col gap-8">
           <section className="rounded-2xl border border-red-200 bg-red-50 p-5 shadow-sm sm:p-6 dark:border-red-900 dark:bg-red-950">
-            <h2 className="text-foreground mb-4 text-lg font-semibold">Nodnumre</h2>
+            <h2 className="text-foreground mb-4 text-lg font-semibold">Nødnummer</h2>
             <div className="flex flex-col gap-3">
               <a
                 href="tel:113"
@@ -17,7 +17,7 @@ export default function KontaktPage() {
               >
                 <div>
                   <p className="text-foreground text-sm font-semibold">Ambulanse</p>
-                  <p className="text-muted text-xs">Medisinsk nodhjelp</p>
+                  <p className="text-muted text-xs">Medisinsk nødhjelp</p>
                 </div>
                 <span className="text-lg font-bold text-red-600 dark:text-red-400">113</span>
               </a>
@@ -51,29 +51,6 @@ export default function KontaktPage() {
                 </div>
                 <span className="text-lg font-bold text-red-600 dark:text-red-400">116 117</span>
               </a>
-            </div>
-          </section>
-
-          <section className="border-border bg-card rounded-2xl border p-5 shadow-sm sm:p-6">
-            <h2 className="text-foreground mb-4 text-lg font-semibold">Kontakt</h2>
-            <div className="text-foreground flex flex-col gap-2 text-sm">
-              <p>
-                Nydalens Skiklub
-                <br />
-                Postboks 32 Nydalen, 0409 Oslo, Norge
-              </p>
-              <div className="mt-2 flex flex-col gap-1">
-                <a href="mailto:nsk@nydalen.idrett.no" className="text-accent hover:underline">
-                  nsk@nydalen.idrett.no
-                </a>
-                <span className="text-muted text-xs">Postmottak</span>
-              </div>
-              <div className="flex flex-col gap-1">
-                <a href="mailto:leder@nydalen.idrett.no" className="text-accent hover:underline">
-                  leder@nydalen.idrett.no
-                </a>
-                <span className="text-muted text-xs">Leder</span>
-              </div>
             </div>
           </section>
 
@@ -112,7 +89,7 @@ export default function KontaktPage() {
               </li>
               <li className="border-border border-b pb-4 last:border-0 last:pb-0">
                 <p className="text-foreground text-sm font-medium">Esten Koren</p>
-                <p className="text-muted text-xs">Lopsleder</p>
+                <p className="text-muted text-xs">Løpsleder</p>
                 <a
                   href="tel:+4748171882"
                   className="text-accent mt-1 block text-sm hover:underline"
@@ -122,7 +99,7 @@ export default function KontaktPage() {
               </li>
               <li className="border-border border-b pb-4 last:border-0 last:pb-0">
                 <p className="text-foreground text-sm font-medium">Anne M. H. Nordberg</p>
-                <p className="text-muted text-xs">Sponsor / okonomi</p>
+                <p className="text-muted text-xs">Sponsor / økonomi</p>
                 <a
                   href="tel:+4741905556"
                   className="text-accent mt-1 block text-sm hover:underline"
@@ -133,17 +110,12 @@ export default function KontaktPage() {
               <li className="border-border border-b pb-4 last:border-0 last:pb-0">
                 <p className="text-foreground text-sm font-medium">Knut Landstad</p>
                 <p className="text-muted text-xs">Informasjon</p>
-                <div className="mt-1 flex flex-col gap-1">
-                  <a href="tel:+4791138238" className="text-accent text-sm hover:underline">
-                    911 38 238
-                  </a>
-                  <a
-                    href="mailto:landstad@gmail.com"
-                    className="text-accent text-sm hover:underline"
-                  >
-                    landstad@gmail.com
-                  </a>
-                </div>
+                <a
+                  href="tel:+4791138238"
+                  className="text-accent mt-1 block text-sm hover:underline"
+                >
+                  911 38 238
+                </a>
               </li>
             </ul>
           </section>
