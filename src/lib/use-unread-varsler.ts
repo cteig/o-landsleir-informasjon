@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 
 const STORAGE_KEY = "varsler-last-seen";
 
@@ -9,41 +9,45 @@ function getLastSeen(): number {
   return Number(localStorage.getItem(STORAGE_KEY) ?? "0");
 }
 
-export function markVarslerSeen() {
-  localStorage.setItem(STORAGE_KEY, String(Math.floor(Date.now() / 1000)));
-}
-
-async function fetchHasUnread(): Promise<boolean> {
-  const res = await fetch("/api/push/messages");
-  if (!res.ok) return false;
-  const messages: { time: number }[] = await res.json();
-  if (messages.length === 0) return false;
-  return messages[0].time > getLastSeen();
+export function markVarslerSeen(latestMessageTime: number) {
+  if (latestMessageTime <= 0) return;
+  localStorage.setItem(STORAGE_KEY, String(latestMessageTime));
+  window.dispatchEvent(new Event("varsler-seen"));
 }
 
 export function useUnreadVarsler(): boolean {
   const [hasUnread, setHasUnread] = useState(false);
 
-  useEffect(() => {
-    let cancelled = false;
+  const check = useCallback(() => {
+    fetch("/api/push/messages")
+      .then((res) => (res.ok ? res.json() : []))
+      .then((messages: { time: number }[]) => {
+        if (messages.length === 0) {
+          setHasUnread(false);
+          return;
+        }
+        setHasUnread(messages[0].time > getLastSeen());
+      })
+      .catch(() => {});
+  }, []);
 
-    fetchHasUnread().then((unread) => {
-      if (!cancelled) setHasUnread(unread);
-    });
+  useEffect(() => {
+    check();
 
     function onVisible() {
-      if (document.visibilityState === "visible") {
-        fetchHasUnread().then((unread) => {
-          if (!cancelled) setHasUnread(unread);
-        });
-      }
+      if (document.visibilityState === "visible") check();
     }
+    function onSeen() {
+      setHasUnread(false);
+    }
+
     document.addEventListener("visibilitychange", onVisible);
+    window.addEventListener("varsler-seen", onSeen);
     return () => {
-      cancelled = true;
       document.removeEventListener("visibilitychange", onVisible);
+      window.removeEventListener("varsler-seen", onSeen);
     };
-  }, []);
+  }, [check]);
 
   return hasUnread;
 }

@@ -61,9 +61,11 @@ export default function VarslerPage() {
     try {
       const res = await fetch("/api/push/messages");
       if (res.ok) {
-        const data = await res.json();
+        const data: PushMessage[] = await res.json();
         setMessages(data);
-        markVarslerSeen();
+        if (data.length > 0) {
+          markVarslerSeen(data[0].time);
+        }
       }
     } catch {
     } finally {
