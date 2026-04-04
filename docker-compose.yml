@@ -21,6 +21,7 @@ services:
     environment:
       NTFY_BASE_URL: https://ntfy.utdanningsplattformen.online
       NTFY_CACHE_FILE: /var/lib/ntfy/cache.db
+      NTFY_CACHE_DURATION: "1h"
       NTFY_WEB_PUSH_PUBLIC_KEY: ${NTFY_WEB_PUSH_PUBLIC_KEY}
       NTFY_WEB_PUSH_PRIVATE_KEY: ${NTFY_WEB_PUSH_PRIVATE_KEY}
       NTFY_WEB_PUSH_FILE: /var/lib/ntfy/webpush.db
