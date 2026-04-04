@@ -8,6 +8,52 @@ export default function KontaktPage() {
         </header>
 
         <div className="flex flex-col gap-8">
+          <section className="rounded-2xl border border-red-200 bg-red-50 p-5 shadow-sm sm:p-6 dark:border-red-900 dark:bg-red-950">
+            <h2 className="text-foreground mb-4 text-lg font-semibold">Nodnumre</h2>
+            <div className="flex flex-col gap-3">
+              <a
+                href="tel:113"
+                className="flex items-center justify-between rounded-xl bg-white px-4 py-3 shadow-sm dark:bg-red-900/30"
+              >
+                <div>
+                  <p className="text-foreground text-sm font-semibold">Ambulanse</p>
+                  <p className="text-muted text-xs">Medisinsk nodhjelp</p>
+                </div>
+                <span className="text-lg font-bold text-red-600 dark:text-red-400">113</span>
+              </a>
+              <a
+                href="tel:110"
+                className="flex items-center justify-between rounded-xl bg-white px-4 py-3 shadow-sm dark:bg-red-900/30"
+              >
+                <div>
+                  <p className="text-foreground text-sm font-semibold">Brann</p>
+                  <p className="text-muted text-xs">Brannvesenet</p>
+                </div>
+                <span className="text-lg font-bold text-red-600 dark:text-red-400">110</span>
+              </a>
+              <a
+                href="tel:112"
+                className="flex items-center justify-between rounded-xl bg-white px-4 py-3 shadow-sm dark:bg-red-900/30"
+              >
+                <div>
+                  <p className="text-foreground text-sm font-semibold">Politi</p>
+                  <p className="text-muted text-xs">Politiet</p>
+                </div>
+                <span className="text-lg font-bold text-red-600 dark:text-red-400">112</span>
+              </a>
+              <a
+                href="tel:116117"
+                className="flex items-center justify-between rounded-xl bg-white px-4 py-3 shadow-sm dark:bg-red-900/30"
+              >
+                <div>
+                  <p className="text-foreground text-sm font-semibold">Legevakt</p>
+                  <p className="text-muted text-xs">Akutt, men ikke livstruende</p>
+                </div>
+                <span className="text-lg font-bold text-red-600 dark:text-red-400">116 117</span>
+              </a>
+            </div>
+          </section>
+
           <section className="border-border bg-card rounded-2xl border p-5 shadow-sm sm:p-6">
             <h2 className="text-foreground mb-4 text-lg font-semibold">Kontakt</h2>
             <div className="text-foreground flex flex-col gap-2 text-sm">
