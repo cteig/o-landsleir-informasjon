@@ -1,7 +1,12 @@
 import { NextResponse } from "next/server";
-import webpush from "web-push";
+import * as webpushModule from "web-push";
 import { getSubscriptions, removeSubscription } from "@/lib/push-store";
 import { addMessage } from "@/lib/message-store";
+
+// web-push is CJS — handle both ESM default interop and direct import
+const webpush = (
+  "default" in webpushModule ? (webpushModule as Record<string, unknown>).default : webpushModule
+) as typeof webpushModule;
 
 const VAPID_PUBLIC_KEY = process.env.VAPID_PUBLIC_KEY ?? "";
 const VAPID_PRIVATE_KEY = process.env.VAPID_PRIVATE_KEY ?? "";
@@ -63,7 +68,12 @@ export async function POST(request: Request): Promise<NextResponse> {
     await addMessage(title, body);
 
     return NextResponse.json({ sent, total: subscriptions.length, errors });
-  } catch {
-    return NextResponse.json({ error: "Failed to send notifications" }, { status: 500 });
+  } catch (err: unknown) {
+    const message = err instanceof Error ? err.message : String(err);
+    console.error("Push send error:", message);
+    return NextResponse.json(
+      { error: "Failed to send notifications", detail: message },
+      { status: 500 },
+    );
   }
 }

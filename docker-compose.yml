@@ -6,3 +6,8 @@ services:
         NEXT_PUBLIC_GIT_SHA: ${SOURCE_COMMIT:-unknown}
     ports:
       - "3000:3000"
+    volumes:
+      - push-data:/app/data
+
+volumes:
+  push-data:
