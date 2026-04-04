@@ -1,4 +1,4 @@
-const CACHE_NAME = "o-landsleir-v2";
+const CACHE_NAME = "o-landsleir-v3";
 const SHEETS_CACHE = "o-landsleir-sheets-v1";
 const URLS_TO_CACHE = ["/"];
 const SHEETS_ORIGIN = "docs.google.com";
