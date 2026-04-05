@@ -3,7 +3,9 @@ FROM node:22-bookworm-slim AS base
 FROM base AS deps
 WORKDIR /app
 COPY package.json package-lock.json ./
-RUN npm ci --ignore-scripts
+RUN npm cache clean --force && rm -rf ~/.npm/ && \
+    npm config set maxsockets 3 && \
+    npm ci --ignore-scripts --no-audit --no-fund
 
 FROM base AS builder
 WORKDIR /app
