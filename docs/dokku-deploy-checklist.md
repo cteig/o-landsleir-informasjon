@@ -9,13 +9,17 @@ Appen er allerede nesten klar for Dokku fordi repoet har:
 - `EXPOSE 3000`
 - persistent data i `data/` som kan mountes til `/app/data`
 
-### Viktig om Docker-baset
+### Viktig om Docker og Dokku-host
 
-Dockerfile-en bruker nå `node:22-bookworm-slim` i stedet for `node:22-alpine`.
+Feilen vi støtte på under deploy viste seg å være et **server-/nettverksproblem**, ikke et varig problem i appens Dockerfile.
 
-Det er en **bevisst og trygg løsning**. Vi testet først Alpine-sporet, men Dokku-bygget feilet der med npm-problemer under `npm ci`. Å oppgradere npm inni Alpine-bildet viste seg også å være skjørt. Bytte til Debian slim var den stabile løsningen, og den ble validert med en ren lokal Docker-build.
+Det viktigste funnet var:
 
-Kort sagt: **behold `bookworm-slim`** med mindre du har en veldig god grunn til å gå tilbake til Alpine.
+- hosten hadde nett
+- Docker-containerne manglet fungerende DNS / egress
+- `npm ci` feilet derfor sekundært med `EAI_AGAIN` / `Exit handler never called!`
+
+Kort sagt: hvis Dokku-bygg feiler under `npm ci`, bør du først feilsøke **Docker/DNS/firewall på serveren** før du endrer appens Dockerfile.
 
 ---
 

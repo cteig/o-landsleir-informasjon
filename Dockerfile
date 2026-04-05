@@ -1,11 +1,9 @@
-FROM node:22-bookworm-slim AS base
+FROM node:22-alpine AS base
 
 FROM base AS deps
 WORKDIR /app
 COPY package.json package-lock.json ./
-RUN npm cache clean --force && rm -rf ~/.npm/ && \
-    npm config set maxsockets 3 && \
-    npm ci --ignore-scripts --no-audit --no-fund
+RUN npm ci --ignore-scripts
 
 FROM base AS builder
 WORKDIR /app
