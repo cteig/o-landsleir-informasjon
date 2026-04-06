@@ -2,8 +2,6 @@ services:
   app:
     build:
       context: .
-      args:
-        NEXT_PUBLIC_GIT_SHA: ${SOURCE_COMMIT:-unknown}
     ports:
       - "3000:3000"
     volumes:
