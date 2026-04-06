@@ -2,33 +2,13 @@
 
 import { useEffect, useState, useCallback } from "react";
 import { markVarslerSeen } from "@/lib/use-unread-varsler";
-
-type PushState = "loading" | "unsupported" | "not-installed" | "default" | "subscribed" | "denied";
+import { usePushSubscription } from "@/lib/use-push-subscription";
 
 interface PushMessage {
   id: string;
   title: string;
   body: string;
   time: number;
-}
-
-function base64ToUint8Array(base64: string): Uint8Array {
-  const padded = base64.padEnd(base64.length + ((4 - (base64.length % 4)) % 4), "=");
-  const raw = atob(padded.replace(/-/g, "+").replace(/_/g, "/"));
-  return Uint8Array.from([...raw].map((c) => c.charCodeAt(0)));
-}
-
-function isIosSafari(): boolean {
-  if (typeof navigator === "undefined") return false;
-  return /iP(hone|ad)/.test(navigator.userAgent) && !/CriOS|FxiOS/.test(navigator.userAgent);
-}
-
-function isStandalone(): boolean {
-  if (typeof window === "undefined") return false;
-  return (
-    ("standalone" in navigator && (navigator as unknown as { standalone: boolean }).standalone) ||
-    window.matchMedia("(display-mode: standalone)").matches
-  );
 }
 
 function formatTime(unixTime: number): string {
@@ -53,7 +33,7 @@ function MessageCard({ msg }: { msg: PushMessage }) {
 }
 
 export default function VarslerPage() {
-  const [pushState, setPushState] = useState<PushState>("loading");
+  const { pushState, subscribe } = usePushSubscription();
   const [messages, setMessages] = useState<PushMessage[]>([]);
   const [loadingMessages, setLoadingMessages] = useState(true);
 
@@ -74,28 +54,6 @@ export default function VarslerPage() {
   }, []);
 
   useEffect(() => {
-    async function detect() {
-      if (!("serviceWorker" in navigator) || !("PushManager" in window)) {
-        setPushState("unsupported");
-        return;
-      }
-
-      if (isIosSafari() && !isStandalone()) {
-        setPushState("not-installed");
-        return;
-      }
-
-      if ("Notification" in window && Notification.permission === "denied") {
-        setPushState("denied");
-        return;
-      }
-
-      const reg = await navigator.serviceWorker.ready;
-      const existing = await reg.pushManager.getSubscription();
-      setPushState(existing ? "subscribed" : "default");
-    }
-
-    detect();
     loadMessages();
 
     function refetchOnVisible() {
@@ -104,35 +62,6 @@ export default function VarslerPage() {
     document.addEventListener("visibilitychange", refetchOnVisible);
     return () => document.removeEventListener("visibilitychange", refetchOnVisible);
   }, [loadMessages]);
-
-  async function subscribe() {
-    try {
-      const permission = await Notification.requestPermission();
-      if (permission !== "granted") {
-        setPushState("denied");
-        return;
-      }
-
-      const reg = await navigator.serviceWorker.ready;
-      const res = await fetch("/api/vapid-public-key");
-      const vapidPublicKey = await res.text();
-
-      const subscription = await reg.pushManager.subscribe({
-        userVisibleOnly: true,
-        applicationServerKey: base64ToUint8Array(vapidPublicKey) as BufferSource,
-      });
-
-      await fetch("/api/push/subscribe", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(subscription),
-      });
-
-      setPushState("subscribed");
-    } catch (err) {
-      console.error("Subscribe failed:", err);
-    }
-  }
 
   return (
     <div className="bg-background flex flex-1 flex-col items-center font-sans">
@@ -176,13 +105,6 @@ export default function VarslerPage() {
           >
             🔔 Slå på push-varsler
           </button>
-        )}
-
-        {pushState === "subscribed" && (
-          <div className="border-border bg-card mb-6 flex items-center gap-3 rounded-2xl border p-4 shadow-sm">
-            <span className="text-base">🔔</span>
-            <span className="text-foreground text-sm">Push-varsler er aktivert</span>
-          </div>
         )}
 
         {loadingMessages && (

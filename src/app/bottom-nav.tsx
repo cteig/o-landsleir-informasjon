@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState, useRef, useEffect } from "react";
 import { useUnreadVarsler } from "@/lib/use-unread-varsler";
+import { usePushSubscription } from "@/lib/use-push-subscription";
 import { useTheme } from "./theme-toggle";
 
 interface NavItemProps {
@@ -58,8 +59,10 @@ function MoreMenu() {
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
   const { theme, toggle } = useTheme();
+  const { pushState, subscribe, unsubscribe } = usePushSubscription();
 
   const themeLabel = { light: "☀️ Lyst", dark: "🌙 Mørkt" }[theme];
+  const canTogglePush = pushState === "subscribed" || pushState === "default";
 
   useEffect(() => {
     function handleClickOutside(e: MouseEvent) {
@@ -103,6 +106,22 @@ function MoreMenu() {
             <span className="text-base">{themeLabel.split(" ")[0]}</span>
             <span>Tema: {themeLabel.split(" ")[1]}</span>
           </button>
+          {canTogglePush && (
+            <button
+              onClick={() => {
+                if (pushState === "subscribed") {
+                  unsubscribe();
+                } else {
+                  subscribe();
+                }
+                setOpen(false);
+              }}
+              className="text-foreground hover:bg-background flex w-full items-center gap-3 px-4 py-3 text-left text-sm"
+            >
+              <span className="text-base">{pushState === "subscribed" ? "🔕" : "🔔"}</span>
+              <span>{pushState === "subscribed" ? "Slå av varsler" : "Slå på varsler"}</span>
+            </button>
+          )}
           <Link
             href="/kart"
             onClick={() => setOpen(false)}
