@@ -7,11 +7,18 @@ RUN npm ci --ignore-scripts
 
 FROM base AS builder
 WORKDIR /app
+COPY .git .git
+RUN GIT_SHA=$(cat .git/HEAD | awk '{print $2}' | xargs -I{} cat .git/{} 2>/dev/null || cat .git/HEAD) && \
+    echo "${GIT_SHA}" > .git-sha && \
+    rm -rf .git
 ARG NEXT_PUBLIC_GIT_SHA=unknown
-ENV NEXT_PUBLIC_GIT_SHA=$NEXT_PUBLIC_GIT_SHA
+ENV NEXT_PUBLIC_GIT_SHA=${NEXT_PUBLIC_GIT_SHA}
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
-RUN npm run build
+RUN if [ "$NEXT_PUBLIC_GIT_SHA" = "unknown" ] && [ -f .git-sha ]; then \
+      export NEXT_PUBLIC_GIT_SHA=$(cat .git-sha); \
+    fi && \
+    NEXT_PUBLIC_GIT_SHA=$NEXT_PUBLIC_GIT_SHA npm run build
 
 FROM base AS runner
 WORKDIR /app
