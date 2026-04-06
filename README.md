@@ -37,11 +37,10 @@ git push dokku main
 
 Disse må være satt på serveren (`dokku config:set o-landsleir ...`):
 
-| Variabel                       | Beskrivelse                                              |
-| ------------------------------ | -------------------------------------------------------- |
-| `VAPID_PUBLIC_KEY`             | VAPID-nøkkel for push-varsler                            |
-| `VAPID_PRIVATE_KEY`            | Privat VAPID-nøkkel                                      |
-| `NEXT_PUBLIC_VAPID_PUBLIC_KEY` | Samme som `VAPID_PUBLIC_KEY`, tilgjengelig i nettleseren |
+| Variabel            | Beskrivelse                   |
+| ------------------- | ----------------------------- |
+| `VAPID_PUBLIC_KEY`  | VAPID-nøkkel for push-varsler |
+| `VAPID_PRIVATE_KEY` | Privat VAPID-nøkkel           |
 
 ### Persistent data
 
