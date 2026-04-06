@@ -123,12 +123,12 @@ function MoreMenu() {
             </button>
           )}
           <Link
-            href="/kart"
+            href="/kontakt"
             onClick={() => setOpen(false)}
             className="text-foreground hover:bg-background flex items-center gap-3 rounded-b-xl px-4 py-3 text-sm"
           >
-            <span className="text-base">🗺️</span>
-            <span>Kart</span>
+            <span className="text-base">📞</span>
+            <span>Kontakt</span>
           </Link>
         </div>
       )}
@@ -143,7 +143,7 @@ export function BottomNav() {
   const isProgramActive = pathname === "/" || pathname?.startsWith("/dag/");
   const isPraktiskInfoActive = pathname === "/praktisk-info";
   const isVarslerActive = pathname === "/varsler";
-  const isKontaktActive = pathname === "/kontakt";
+  const isKartActive = pathname === "/kart";
 
   return (
     <nav className="border-border bg-card/95 fixed right-0 bottom-0 left-0 z-50 flex w-full flex-row border-t pb-[env(safe-area-inset-bottom)] backdrop-blur-sm">
@@ -183,11 +183,8 @@ export function BottomNav() {
         )}
       </NavItem>
 
-      <NavItem href="/kontakt" active={isKontaktActive} label="Kontakt">
-        <NavIcon
-          d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2M22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"
-          circles={[{ cx: 9, cy: 7, r: 4 }]}
-        />
+      <NavItem href="/kart" active={isKartActive} label="Kart">
+        <NavIcon d="M1 6v16l7-4 8 4 7-4V2l-7 4-8-4-7 4zM8 2v16M16 6v16" />
       </NavItem>
 
       <MoreMenu />
