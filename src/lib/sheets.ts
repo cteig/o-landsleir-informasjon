@@ -3,6 +3,7 @@ import { Activity, ProgramDay } from "@/types/activity";
 const SHEET_ID = "1wRO77uh6gk5X0ERSQ4nt9Q_qXmb2DBR7hFb2JiKmY88";
 const GID = "667582302";
 const CSV_URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&gid=${GID}`;
+const FETCH_TIMEOUT_MS = 3000;
 
 /**
  * Expected CSV columns (order matters):
@@ -45,7 +46,10 @@ export function parseCSVLine(line: string): string[] {
 
 /** Fetch CSV from Google Sheets, parse rows, group by day into ProgramDay[]. */
 export async function fetchProgramFromSheets(): Promise<ProgramDay[]> {
-  const response = await fetch(CSV_URL, { cache: "no-store" });
+  const response = await fetch(CSV_URL, {
+    cache: "no-store",
+    signal: AbortSignal.timeout(FETCH_TIMEOUT_MS),
+  });
 
   if (!response.ok) {
     throw new Error(`Google Sheets returned ${response.status}`);
