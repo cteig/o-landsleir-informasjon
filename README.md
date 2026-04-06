@@ -11,6 +11,20 @@ npm run dev
 
 Åpne [http://localhost:3000](http://localhost:3000).
 
+## Tester
+
+```bash
+npm test
+```
+
+## Kjør med Docker lokalt
+
+```bash
+docker compose up --build
+```
+
+Appen blir tilgjengelig på [http://localhost:3000](http://localhost:3000). Push-varsler krever at VAPID-nøkler er satt som miljøvariabler (se under).
+
 ## Deploy
 
 Appen kjører på [Dokku](https://dokku.com) hostet på [UpCloud](https://upcloud.com).
