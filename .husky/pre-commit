@@ -1,1 +1,3 @@
+git rev-parse --short HEAD > git-sha.txt
+git add git-sha.txt
 npx lint-staged
